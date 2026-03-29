@@ -1,0 +1,93 @@
+const schema = `
+-- 1. Admins
+CREATE TABLE IF NOT EXISTS admins (
+  id BIGSERIAL PRIMARY KEY,
+  username VARCHAR(100) NOT NULL,
+  email VARCHAR(255) UNIQUE NOT NULL,
+  password TEXT NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 2. Categories
+CREATE TABLE IF NOT EXISTS categories (
+  id BIGSERIAL PRIMARY KEY,
+  name VARCHAR(100) NOT NULL,
+  status TEXT CHECK (status IN ('active', 'inactive')) DEFAULT 'active',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 3. Courses
+CREATE TABLE IF NOT EXISTS courses (
+  id BIGSERIAL PRIMARY KEY,
+  title VARCHAR(255) NOT NULL,
+  description TEXT,
+  price NUMERIC(10,2) NOT NULL,
+  category_id BIGINT REFERENCES categories(id) ON DELETE SET NULL,
+  duration VARCHAR(100),
+  feature_bullet_points TEXT[],
+  stripe_link TEXT,
+  status TEXT CHECK (status IN ('active', 'inactive')) DEFAULT 'active',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 4. Reviews
+CREATE TABLE IF NOT EXISTS reviews (
+  id BIGSERIAL PRIMARY KEY,
+  student_name VARCHAR(255) NOT NULL,
+  rating INT CHECK (rating BETWEEN 1 AND 5),
+  message TEXT,
+  youtube_embed VARCHAR(500),
+  category_id BIGINT REFERENCES categories(id) ON DELETE SET NULL,
+  is_published BOOLEAN DEFAULT false,
+  status TEXT CHECK (status IN ('approved', 'rejected', 'pending')) DEFAULT 'pending',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 5. Contact Forms
+CREATE TABLE IF NOT EXISTS contact_forms (
+  id BIGSERIAL PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  email VARCHAR(255) NOT NULL,
+  message TEXT NOT NULL,
+  status TEXT CHECK (status IN ('new', 'read', 'responded')) DEFAULT 'new',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 6. Certificates
+CREATE TABLE IF NOT EXISTS certificates (
+  id BIGSERIAL PRIMARY KEY,
+  student_name VARCHAR(255) NOT NULL,
+  course_id BIGINT REFERENCES courses(id) ON DELETE CASCADE,
+  start_date DATE NOT NULL,
+  end_date DATE NOT NULL,
+  certificate_url VARCHAR(500) UNIQUE NOT NULL,
+  certificate_id VARCHAR(100) UNIQUE NOT NULL,
+  description_line1 TEXT,
+  description_line2 TEXT,
+  qr_code VARCHAR(500),
+  pdf_path VARCHAR(500),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 7. Bootcamp Page Data
+
+CREATE TABLE bootcamp_page_data (
+  id SERIAL PRIMARY KEY,
+category_id INT UNIQUE REFERENCES categories(id) ON DELETE CASCADE,
+  hero JSONB NOT NULL,
+  tech_career JSONB,
+  skills JSONB,
+  projects JSONB,
+  curriculum JSONB,
+  career_support JSONB,
+  success_stories JSONB,
+  salary_outcomes JSONB,
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW()
+);
