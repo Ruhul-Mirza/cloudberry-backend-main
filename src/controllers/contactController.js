@@ -14,24 +14,22 @@ exports.create = async (req, res, next) => {
       message
     });
 
-    // Send email to user
-    try {
-      await emailService.sendContactConfirmation(email, name);
-    } catch (emailError) {
-      console.error('Email sending failed:', emailError);
-      // Continue even if email fails
-    }
+    // 👇 User email
+    emailService.sendContactConfirmation(email, name);
+
+    // 👇 ADMIN EMAIL (NEW)
+    emailService.sendAdminNotification({ name, email, message });
 
     res.status(201).json({
       success: true,
-      message: 'Contact form submitted successfully. We will get back to you soon.',
+      message: "Contact form submitted successfully.",
       data: { id: contactId }
     });
+
   } catch (error) {
     next(error);
   }
 };
-
 // @desc    Get all contact forms
 // @route   GET /api/contact
 // @access  Private

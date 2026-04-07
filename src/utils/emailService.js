@@ -1,5 +1,5 @@
-const nodemailer = require('nodemailer');
-const config = require('../config/config');
+const nodemailer = require("nodemailer");
+const config = require("../config/config");
 
 // Create transporter
 const transporter = nodemailer.createTransport({
@@ -8,25 +8,51 @@ const transporter = nodemailer.createTransport({
   secure: false,
   auth: {
     user: config.email.user,
-    pass: config.email.password
-  }
+    pass: config.email.password,
+  },
 });
 
 // Verify connection
 transporter.verify((error, success) => {
   if (error) {
-    console.log('Email service error:', error);
+    console.log("Email service error:", error);
   } else {
-    console.log('✅ Email service ready');
+    console.log("✅ Email service ready");
   }
 });
 
+exports.sendAdminNotification = async ({ name, email, message }) => {
+  const mailOptions = {
+    from: config.email.from,
+    to: "your@gmail.com", // 👈 tera email
+    subject: "📩 New Contact Form Submission",
+    html: `
+      <div style="font-family: Arial; max-width: 600px;">
+        <h2>New Contact Request</h2>
+
+        <p><strong>Name:</strong> ${name}</p>
+        <p><strong>Email:</strong> ${email}</p>
+        <p><strong>Message:</strong></p>
+        <p style="background:#f5f5f5;padding:10px;border-radius:5px;">
+          ${message}
+        </p>
+      </div>
+    `,
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log("Admin notification sent ✅");
+  } catch (error) {
+    console.error("Admin email error:", error);
+  }
+};
 // Send contact form confirmation
 exports.sendContactConfirmation = async (email, name) => {
   const mailOptions = {
     from: config.email.from,
     to: email,
-    subject: 'Thank you for contacting us',
+    subject: "Thank you for contacting us",
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <h2>Hello ${name},</h2>
@@ -35,14 +61,14 @@ exports.sendContactConfirmation = async (email, name) => {
         <br>
         <p>Best regards,<br>The Team</p>
       </div>
-    `
+    `,
   };
 
   try {
     await transporter.sendMail(mailOptions);
-    console.log('Confirmation email sent to:', email);
+    console.log("Confirmation email sent to:", email);
   } catch (error) {
-    console.error('Error sending email:', error);
+    console.error("Error sending email:", error);
     throw error;
   }
 };
@@ -52,7 +78,7 @@ exports.sendCertificateEmail = async (email, name, certificateUrl, pdfPath) => {
   const mailOptions = {
     from: config.email.from,
     to: email,
-    subject: 'Your Course Certificate',
+    subject: "Your Course Certificate",
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <h2>Congratulations ${name}!</h2>
@@ -66,17 +92,17 @@ exports.sendCertificateEmail = async (email, name, certificateUrl, pdfPath) => {
     `,
     attachments: [
       {
-        filename: 'certificate.pdf',
-        path: pdfPath
-      }
-    ]
+        filename: "certificate.pdf",
+        path: pdfPath,
+      },
+    ],
   };
 
   try {
     await transporter.sendMail(mailOptions);
-    console.log('Certificate email sent to:', email);
+    console.log("Certificate email sent to:", email);
   } catch (error) {
-    console.error('Error sending certificate email:', error);
+    console.error("Error sending certificate email:", error);
     throw error;
   }
 };
