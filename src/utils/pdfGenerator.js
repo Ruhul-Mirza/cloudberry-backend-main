@@ -16,7 +16,7 @@ function safeImage(doc, imgPath, x, y, options = {}) {
 
 exports.generateCertificatePDFBuffer = async ({
   student_name,
-  course_title,
+  category_name,
   start_date,
   end_date,
   certificate_id,
@@ -119,7 +119,7 @@ exports.generateCertificatePDFBuffer = async ({
         continued: true,
       });
 
-      doc.font("Helvetica-Bold").text(` “${course_title}” `, {
+      doc.font("Helvetica-Bold").text(` “${category_name}” `, {
         continued: true,
       });
 

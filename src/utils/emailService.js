@@ -24,7 +24,7 @@ transporter.verify((error, success) => {
 exports.sendAdminNotification = async ({ name, email, message }) => {
   const mailOptions = {
     from: config.email.from,
-    to: "your@gmail.com", // 👈 tera email
+    to: "sid@cloudberry.services",
     subject: "📩 New Contact Form Submission",
     html: `
       <div style="font-family: Arial; max-width: 600px;">

@@ -4,7 +4,7 @@ class Certificate {
   static async create(data) {
     const {
       student_name,
-      course_id,
+      category_id,
       start_date,
       end_date,
       certificate_url,
@@ -15,14 +15,14 @@ class Certificate {
 
     const query = `
   INSERT INTO certificates
-  (student_name, course_id, start_date, end_date, certificate_url, certificate_id, qr_code, pdf_path)
+  (student_name, category_id, start_date, end_date, certificate_url, certificate_id, qr_code, pdf_path)
   VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
   RETURNING *
 `;
 
     const values = [
       student_name,
-      course_id,
+      category_id,
       start_date,
       end_date,
       certificate_url,
@@ -38,12 +38,11 @@ class Certificate {
   static async getAll({ course_id, search }) {
     let query = `
     SELECT
-      cert.*,
-      course.title AS course_title
-    FROM certificates cert
-    LEFT JOIN courses course
-      ON cert.course_id = course.id
-    WHERE 1=1
+  cert.*,
+  cat.name AS category_name
+FROM certificates cert
+LEFT JOIN categories cat
+  ON cert.category_id = cat.id
   `;
 
     const values = [];

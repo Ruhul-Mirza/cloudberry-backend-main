@@ -40,11 +40,12 @@ class Category {
   }
   /* ================= FIND BY ID ================= */
   static async findById(id) {
-    const rows = await pool.query(
+    const result = await pool.query(
       `SELECT * FROM categories WHERE id = $1 LIMIT 1`,
       [id],
     );
-    return rows[0] || null;
+
+    return result.rows[0] || null; // ✅ FIX
   }
 
   /* ================= GET ALL ================= */

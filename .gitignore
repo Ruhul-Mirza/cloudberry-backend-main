@@ -1,2 +1,6 @@
 /node_modules
 .env
+credentials.json
+token.json
+src/scripts/credentials.json
+src/scripts/token.json

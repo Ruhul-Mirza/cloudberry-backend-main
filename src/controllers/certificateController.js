@@ -1,7 +1,7 @@
 const Certificate = require("../models/Certificate");
 const Course = require("../models/Course");
 const crypto = require("crypto");
-
+const Category = require("../models/Category");
 const { generateQRCodeBuffer } = require("../utils/qrGenerator");
 const { generateCertificatePDFBuffer } = require("../utils/pdfGenerator");
 const { uploadPDFBuffer } = require("../utils/cloudinary");
@@ -13,21 +13,23 @@ exports.create = async (req, res, next) => {
   try {
     const {
       student_name,
-      course_id,
+      category_id,
       start_date,
       end_date,
       description_line1,
       description_line2,
     } = req.body;
+    console.log("category_id:", category_id, typeof category_id);
+    const categoryId = Number(category_id);
 
-    const course = await Course.findById(course_id);
-    if (!course) {
+    const category = await Category.findById(categoryId);
+
+    if (!category) {
       return res.status(404).json({
         success: false,
-        message: "Course not found",
+        message: "Category not found",
       });
     }
-
     const certificate_url = crypto.randomBytes(16).toString("hex");
     const certificate_id =
       "CB-" + crypto.randomBytes(6).toString("hex").toUpperCase();
@@ -39,7 +41,7 @@ exports.create = async (req, res, next) => {
     // Generate PDF
     const pdfBuffer = await generateCertificatePDFBuffer({
       student_name,
-      course_title: course.title,
+      category_name: category.name,
       start_date,
       end_date,
       certificate_id,
@@ -54,7 +56,7 @@ exports.create = async (req, res, next) => {
     // Save to DB
     const certificate = await Certificate.create({
       student_name,
-      course_id,
+      category_id,
       start_date,
       end_date,
       certificate_url,

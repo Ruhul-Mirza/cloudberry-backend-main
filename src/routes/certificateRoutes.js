@@ -8,7 +8,7 @@ const { validate } = require('../middleware/validation');
 // Validation rules
 const certificateValidation = [
   body('student_name').trim().notEmpty().withMessage('Student name is required'),
-  body('course_id').isInt().withMessage('Valid course ID is required'),
+  body('category_id').isInt().withMessage('Valid category ID is required'),
   body('start_date').isDate().withMessage('Valid start date is required'),
   body('end_date').isDate().withMessage('Valid end date is required')
 ];
