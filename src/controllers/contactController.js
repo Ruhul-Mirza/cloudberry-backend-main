@@ -1,17 +1,38 @@
-const ContactForm = require('../models/ContactForm');
-const emailService = require('../utils/emailService');
+const ContactForm = require("../models/ContactForm");
+const emailService = require("../utils/emailService");
+const axios = require("axios");
 
 // @desc    Submit contact form
 // @route   POST /api/contact
 // @access  Public
 exports.create = async (req, res, next) => {
   try {
-    const { name, email, message } = req.body;
+    const { name, email, message, turnstileToken } = req.body;
+    if (!turnstileToken) {
+      return res.status(400).json({
+        success: false,
+        message: "Verification required",
+      });
+    }
 
+    const verification = await axios.post(
+      "https://challenges.cloudflare.com/turnstile/v0/siteverify",
+      {
+        secret: process.env.TURNSTILE_SECRET_KEY,
+        response: turnstileToken,
+      },
+    );
+
+    if (!verification.data.success) {
+      return res.status(400).json({
+        success: false,
+        message: "Verification failed",
+      });
+    }
     const contactId = await ContactForm.create({
       name,
       email,
-      message
+      message,
     });
 
     // 👇 User email
@@ -23,9 +44,8 @@ exports.create = async (req, res, next) => {
     res.status(201).json({
       success: true,
       message: "Contact form submitted successfully.",
-      data: { id: contactId }
+      data: { id: contactId },
     });
-
   } catch (error) {
     next(error);
   }
@@ -45,7 +65,7 @@ exports.getAll = async (req, res, next) => {
     res.json({
       success: true,
       count: contacts?.[0]?.length ?? [],
-      data: contacts
+      data: contacts,
     });
   } catch (error) {
     next(error);
@@ -62,16 +82,16 @@ exports.getById = async (req, res, next) => {
     if (!contact) {
       return res.status(404).json({
         success: false,
-        message: 'Contact form not found'
+        message: "Contact form not found",
       });
     }
 
     // Mark as read
-    await ContactForm.updateStatus(req.params.id, 'read');
+    await ContactForm.updateStatus(req.params.id, "read");
 
     res.json({
       success: true,
-      data: contact
+      data: contact,
     });
   } catch (error) {
     next(error);
@@ -90,13 +110,13 @@ exports.updateStatus = async (req, res, next) => {
     if (!updated) {
       return res.status(404).json({
         success: false,
-        message: 'Contact form not found'
+        message: "Contact form not found",
       });
     }
 
     res.json({
       success: true,
-      message: 'Status updated successfully'
+      message: "Status updated successfully",
     });
   } catch (error) {
     next(error);
@@ -113,13 +133,13 @@ exports.delete = async (req, res, next) => {
     if (!deleted) {
       return res.status(404).json({
         success: false,
-        message: 'Contact form not found'
+        message: "Contact form not found",
       });
     }
 
     res.json({
       success: true,
-      message: 'Contact form deleted successfully'
+      message: "Contact form deleted successfully",
     });
   } catch (error) {
     next(error);
